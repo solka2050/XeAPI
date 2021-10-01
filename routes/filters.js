@@ -10,9 +10,9 @@ router.get("/", (req, res) => {
   var sqlstring="select idExpenses, DATE_FORMAT(WorkDate, '%d-%m-%Y') AS WorkDate,FORMAT(Rent,0,'en_IN') AS Rent,\
   FORMAT(DelhiEntry,0,'en_IN') AS DelhiEntry,FORMAT(Diesel,0,'en_IN') AS Diesel,FORMAT(Repairing,0,'en_IN') AS Repairing, RepairingId,FORMAT(Food,0,'en_IN') AS Food,\
   FORMAT(Kaanta,0,'en_IN') AS Kaanta,FORMAT(TollTax,0,'en_IN') AS TollTax,FORMAT(Other,0,'en_IN') AS Other,FORMAT(Total,0,'en_IN') AS Total,FORMAT(Balance,0,'en_IN') AS Balance,\
-  EntryType, Description, LocationName,VehRegNo FROM benz.Expenses where VehRegNo=" +vechino +" && WorkDate>=" +fromdate +" && WorkDate<=" +todate +"  && Repairing>0 ORDER BY DATE(WorkDate);";
+  EntryType, Description, LocationName,VehRegNo FROM dhulltra_benz.Expenses where VehRegNo=" +vechino +" && WorkDate>=" +fromdate +" && WorkDate<=" +todate +"  && Repairing>0 ORDER BY DATE(WorkDate);";
 
-  console.log(sqlstring);
+ // console.log(sqlstring);
   mysqlConnection.query(sqlstring,
 
     (err, results) => {
@@ -26,21 +26,19 @@ router.get("/", (req, res) => {
     }
   );
 });
-//get specific userinformation
-/* select FORMAT(sum(Rent),0,'en_IN') AS Rent,FORMAT(sum(DelhiEntry),0,'en_IN') AS DelhiEntry,FORMAT(sum(Diesel),0,'en_IN') AS Diesel,FORMAT(sum(Repairing),0,'en_IN') AS Repairing,
-FORMAT(sum(Food),0,'en_IN') AS Food,FORMAT(sum(Kaanta),0,'en_IN') AS Kaanta,
-FORMAT(sum(TollTax),0,'en_IN') AS TollTax,FORMAT(sum(Other),0,'en_IN') AS Other,FORMAT(sum(Total),0,'en_IN') AS Total,FORMAT(sum(Balance),0,'en_IN') AS Balance FROM benz.Expenses
- where VehRegNo='HR-56-B-3692' && WorkDate>'2020-05-01 00:00:00' && WorkDate<'2020-05-14 23:59:59';*/
-router.get("/:idExpenses", (req, res) => {
+//get Repair Details
+
+router.get("/:RepairId", (req, res) => {
   mysqlConnection.query(
-    "SELECT * FROM benz.Expenses where idExpenses=?;",
-    [req.params.idExpenses],
+    //SELECT Description,Amount FROM dhulltra_benz.Det_Repair_Entry where RepairId=2019
+    "SELECT Description,Amount FROM dhulltra_benz.Det_Repair_Entry where RepairId=?;",
+    [req.params.RepairId],
     (err, rows, fields) => {
       if (!err) {
         // console.log(rows);
         var Array = rows;
         res.json({
-          EntryDetails: Array[0],
+          EntryDetails: Array,
         });
       } else {
         console.log(err);
@@ -52,7 +50,7 @@ router.get("/:idExpenses", (req, res) => {
 //get specific userinformation
 router.get("/login", (req, res) => {
   var { userid, password } = req.query;
-  console.log(userid, password);
+ // console.log(userid, password);
   return res.send("Logging in");
 });
 
@@ -63,7 +61,7 @@ router.post("/", (req, res) => {
 
   var sql =
     "SET @varWorkDate=?;SET @varRent=?;SET @varDelhiEntry=?;SET @varDiesel=?;SET @varRepairing=?;SET @varRepairingId=?;SET @varFood=?;SET @varKaanta=?;SET @varTollTax=?;SET @varOther=?;SET @varEntryType=?;SET @varDescription=?;SET @varLocationName=?;SET @varVehRegNo=?;SET @varDriverId=?; \
-    CALL benz.sp_new_ExpensesEntry(@varWorkDate,@varRent,@varDelhiEntry,@varDiesel,@varRepairing,@varRepairingId,@varFood,@varKaanta,@varTollTax,@varOther,@varEntryType,@varDescription,@varLocationName,@varVehRegNo,@varDriverId);";
+    CALL dhulltra_benz.sp_new_ExpensesEntry(@varWorkDate,@varRent,@varDelhiEntry,@varDiesel,@varRepairing,@varRepairingId,@varFood,@varKaanta,@varTollTax,@varOther,@varEntryType,@varDescription,@varLocationName,@varVehRegNo,@varDriverId);";
 
   mysqlConnection.query(
     sql,
@@ -129,7 +127,7 @@ router.put("/", (req, res) => {
 });
 router.patch("/", (req, res) => {
   mysqlConnection.query(
-    "SELECT max(`idExpenses`)+1 AS idExpenses  FROM benz.Expenses;",
+    "SELECT max(`idExpenses`)+1 AS idExpenses  FROM dhulltra_benz.Expenses;",
     (err, results) => {
       if (err) {
         return res.json(err);
@@ -149,7 +147,7 @@ router.delete("/", (req, res) => {
   mysqlConnection.query(
     "select FORMAT(sum(Rent),0,'en_IN') AS Rent,FORMAT(sum(DelhiEntry),0,'en_IN') AS DelhiEntry,FORMAT(sum(Diesel),0,'en_IN') AS Diesel,FORMAT(sum(Repairing),0,'en_IN') AS Repairing,\
     FORMAT(sum(Food),0,'en_IN') AS Food,FORMAT(sum(Kaanta),0,'en_IN') AS Kaanta,FORMAT(sum(TollTax),0,'en_IN') AS TollTax,FORMAT(sum(Other),0,'en_IN') AS Other,\
-    FORMAT(sum(Total),0,'en_IN') AS Total,FORMAT(sum(Balance),0,'en_IN') AS Balance FROM benz.Expenses \
+    FORMAT(sum(Total),0,'en_IN') AS Total,FORMAT(sum(Balance),0,'en_IN') AS Balance FROM dhulltra_benz.Expenses \
     where VehRegNo=" +
       vechino +
       " && WorkDate>=" +

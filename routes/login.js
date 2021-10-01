@@ -6,11 +6,14 @@ const { sign } = require("jsonwebtoken");
 const { checkToken } = require("../auth/token_validation");
 //Get all user Details
 router.get("/", (req, res) => {
-   // console.log(req.headers);
+    //console.log(req.headers);
+    var AccessToken;
+    AccessToken='';
     let token = req.get("authorization");
-    AccessToken = token.slice(7);
+    if (token){AccessToken = token.slice(7);}
+    
   
-    selectQuery = `SELECT id,Email as email,Password as password,FullName as name,avatar,Type as role,accessToken FROM benz.Users where accessToken='${AccessToken}'`;
+    selectQuery = `SELECT id,Email as email,'Password' as password,FullName as name,avatar,Type as role,accessToken FROM currency_kharido.Users where accessToken='${AccessToken}'`;
     mysqlConnection.query(selectQuery,
         [AccessToken], (err, results) => {
           
@@ -39,11 +42,12 @@ router.get("/:userid", (req, res) => {
 
 //get specific userinformation
 router.post("/", (req, res) => {
-   console.log(req.headers);
+  // console.log(req.headers);
     var {
         email,
         password
     } = req.body;
+   // console.log(req.body);
     const jsontoken = sign({
         user: req.body
     }, process.env.jwtkey, {
@@ -56,19 +60,20 @@ router.post("/", (req, res) => {
     mysqlConnection.query(sql, [email, password, jsontoken], (err, rows, fields) => {
         
         if (!err) {
-
+		//console.log(rows);
             rows.forEach(element => {
                 if (element.constructor == Array) {
-                   if( (element[0].id)==0){
+		
+                   if( (element[0].id)===0){
                     return res.status(401).json({
                         success: 0,
                         message: "invalid credentials"
                     });
-                   };
+                   }
                     res.json({
                         id: element[0].id,
                         email: element[0].email,
-                        password: element[0].password,
+                        password: '',
                         name: element[0].name,
                         avatar: ' ',
                         role: element[0].role,
@@ -78,6 +83,7 @@ router.post("/", (req, res) => {
             });
 
       /*  } else if (results < 1) {
+	
             return res.status(401).json({
                 success: 0,
                 message: "invalid credentials"
@@ -97,7 +103,7 @@ router.post("/", (req, res) => {
 
 router.get("/api", (req, res) => {
     let user = req.body;
-    //SELECT id,Email as email,Password as password,FullName as name,avatar,Type as role,accessToken FROM benz.Users where email='' && Password='';
+    //SELECT id,Email as email,Password as password,FullName as name,avatar,Type as role,accessToken FROM dhulltra_benz.Users where email='' && Password='';
 
     var sql = "SET @_userid=?;SET @_password=?;SET @_email=?;SET @_phone=?; \
     CALL SpUsersInsert(@_userid,@_password,@_email,@_phone);";
@@ -141,5 +147,20 @@ router.put("/", (req, res) => {
         }
     })
 
+})
+router.delete("/", (req, res) => {
+    var datetime = new Date();
+    selectQuery1 = `SELECT  * FROM dhulltra_benz.Users `;
+    mysqlConnection.query(selectQuery1,
+         (err, results) => {
+          
+            if (!err) {
+                res.json("Hello From Server "+datetime)
+               console.log("Last API Refresh Called Time is "+datetime);
+            } else {
+                res.json(err);
+            }
+        })
+    
 })
 module.exports = router;

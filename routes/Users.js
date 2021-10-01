@@ -5,7 +5,7 @@ var bodyParser = require("body-parser");
 const { checkToken } = require("../auth/token_validation");
 //Get all user Details
 router.get("/", (req, res) => {
-    mysqlConnection.query("SELECT * FROM benz.Users;", (err, results) => {
+    mysqlConnection.query("SELECT * FROM currency_kharido.Users;", (err, results) => {
         if (err) {
 
             return res.json(err);
@@ -22,7 +22,7 @@ router.get("/", (req, res) => {
 
 router.get("/:id", (req, res) => {
     try {
-        mysqlConnection.query("SELECT * FROM benz.Users where id=?", [req.params.id], (err, results) => {
+        mysqlConnection.query("SELECT * FROM currency_kharido.Users where id=?", [req.params.id], (err, results) => {
             if (!err) {
                 //  var Array=rows;
                 // res.json(Array[0]);
@@ -42,15 +42,18 @@ router.get("/:id", (req, res) => {
 //get specific userinformation
 router.get("/login", (req, res) => {
     var { userid, password } = req.query;
-    console.log(userid, password);
+   // console.log(userid, password);
     return res.send("Logging in");
 
 })
 
-router.post("/:varStatus", (req, res) => {
+router.post("/", (req, res) => {
     let user = req.query;
-    statusCode=req.params.varStatus;
-    mysqlConnection.query("UPDATE `benz`.`Users` SET `Status` =" + statusCode + " WHERE `id` =" + user.id + ";", (err, results) => {
+
+    sqlQuery="UPDATE `currency_kharido`.`Users` SET `Status` = "+user.varStatus+" WHERE `id` =" + user.id + ";";
+    //console.log(sqlQuery);
+    //statusCode=req.params.varStatus;
+    mysqlConnection.query(sqlQuery, (err, results) => {
         if (err) {
 
             return res.json(err);
@@ -64,7 +67,7 @@ router.post("/:varStatus", (req, res) => {
 
 })
 
-router.post("/", (req, res) => {
+router.post("/1", (req, res) => {
     let user = req.query;
 
     var sql = "SET @varName=?;SET @varPhoneNumber=?;SET @varPassword=?;SET @varEmail=?; \

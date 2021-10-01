@@ -5,7 +5,7 @@ var mysql = require("mysql");
   // password: 'l(}NHmUD3${#&IfI8rc(uuZC!novd!',
   user: 'adminer',
   password: 'Googleit@9211',
-  database: 'benz',
+  database: 'dhulltra_benz',
   multipleStatements: true
 });
 
@@ -19,13 +19,27 @@ connection.connect((err) => {
   }
 });
 */
-var db_config = {
-  host: process.env.ip,
-  user: process.env.user,
-  password: process.env.password,
-  database: process.env.database,
-  multipleStatements: true,
-};
+
+
+if (process.env.NODE_ENV == "development"){
+  var db_config = {
+    host: process.env.developmenthost,
+    user: process.env.developmentusername,
+    password: process.env.developmentpassword,
+    database: 'currency_kharido',
+    multipleStatements: true,
+    port:3306
+  };
+} else {
+  var db_config = {
+    host: process.env.ip,
+    user: process.env.user,
+    password: process.env.password,
+    database: 'currency_kharido',
+    multipleStatements: true,
+    port:7614
+  };
+}
 
 var connection;
 //connection = mysql.createConnection(db_config);

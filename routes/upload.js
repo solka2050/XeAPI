@@ -11,7 +11,7 @@ const MIMR_TYPE_MAP = {
 };
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        console.log(req);
+        //console.log(req);
         const isValid = MIMR_TYPE_MAP[file.mimetype];
         let error = new Error("Invalid mime type");
         if (isValid) {
@@ -31,19 +31,33 @@ router.post("/", multer({
     storage: storage
 }).single("image1"), (req, res) => {
     let post = req.body;
-    console.log(post);
+    const url = req.protocol + '://' + req.get("host");
+    const imagepath = url + "/images/" + req.file.filename;
+    //console.log(post);
     if (req.file.filename==undefined){
-
+        res.json(
+            {
+                ImageAddress:imagepath,
+                status:400,
+                message:"Error"
+            }
+        )
     }
     else
     {
         
-    const url = req.protocol + '://' + req.get("host");
-    const imagepath = url + "/images/" + req.file.filename;
+    
     // console.log("image is made by multer"+imagepath);
     // console.log(post);
 
     post.Image1 = imagepath;
+    res.json(
+        {
+            ImageAddress:imagepath,
+            status:200,
+            message:"Upload Successfull"
+        }
+    )
     }
     //router.post("/", multer({    storage: storage}).array('image1',6), (req, res) => {
     })
